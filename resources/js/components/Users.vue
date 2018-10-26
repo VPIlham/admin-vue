@@ -6,7 +6,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Users Table</h3>
-                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addNew"> Add
+                        <button type="button" class="btn btn-success" @click="createModal"> Add
                             New <i class="fas fa-user-plus fa-fw"></i></button>
                         <div class="card-tools">
                             <div class="input-group input-group-sm" style="width: 150px;">
@@ -36,7 +36,7 @@
                                 <td><span class="tag tag-success">{{user.type | upText}}</span></td>
                                 <td>{{user.created_at | myDate}}</td>
                                 <td>
-                                    <a href="">
+                                    <a href="#" @click="editModal(user)">
                                         <i class="fa fa-edit"></i>
                                     </a>
                                     /
@@ -58,12 +58,13 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addNew">Tambah Baru</h5>
+                        <h5 class="modal-title" v-show="editmode" id="addNew">Edit user info</h5>
+                        <h5 class="modal-title" v-show="!editmode" id="addNew">Tambah Baru</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form @submit.prevent="createUser">
+                    <form @submit.prevent="editmode ? updateUser() : createUser()">
                         <div class="modal-body">
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Name</label>
@@ -106,7 +107,8 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                            <button type="submit" class="btn btn-primary">Tambah baru</button>
+                            <button v-show="editmode" type="submit" class="btn btn-primary">Edit data</button>
+                            <button v-show="!editmode"  type="submit" class="btn btn-primary">Tambah baru</button>
                         </div>
                     </form>
                 </div>
@@ -120,8 +122,10 @@
     export default {
         data() {
             return {
+                editmode : false,
                 users: {},
                 form: new Form({
+                    id :'',
                     name: '',
                     email: '',
                     password: '',
@@ -132,6 +136,33 @@
             }
         },
         methods: {
+            updateUser(){
+                this.$Progress.start()
+                this.form.put('api/user/'+this.form.id).then(()=>{
+                    //success
+                      $('#addNew').modal('hide');
+                     swal(
+                                    'Updated!',
+                                    'Information has been updated.',
+                                    'success'
+                                )   
+                     this.$Progress.finish();
+                     Fire.$emit('AfterCreate');
+                }).catch(() => {
+                    this.$Progress.fail()
+                });
+            },
+            createModal(){
+                this.editmode = false;
+                this.form.reset(); //reset di form ketika masih ada last isian 
+                $('#addNew').modal('show');
+            },
+            editModal(user){
+                this.editmode = true;
+                this.form.reset(); //reset di form ketika masih ada last isian 
+                $('#addNew').modal('show');
+                this.form.fill(user);
+            },
             deleteUser(id) {
                 swal({
                     title: 'Are you sure?',

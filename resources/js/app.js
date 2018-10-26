@@ -54,23 +54,35 @@ let routes = [{
         component: require('./components/Users.vue')
     },
     {
+        path: '/developer',
+        component: require('./components/Developer.vue')
+    },
+    {
         path: '/profile',
         component: require('./components/Profile.vue')
     }
 ]
+
+Vue.component(
+    'passport-clients',
+    require('./components/passport/Clients.vue')
+);
+
+Vue.component(
+    'passport-authorized-clients',
+    require('./components/passport/AuthorizedClients.vue')
+);
+
+Vue.component(
+    'passport-personal-access-tokens',
+    require('./components/passport/PersonalAccessTokens.vue')
+);
 
 const router = new VueRouter({
     routes, // short for `routes: routes`,
     mode: 'history'
 })
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
 
 const app = new Vue({
     el: '#app',
